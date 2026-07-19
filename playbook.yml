@@ -1,0 +1,41 @@
+---
+- name: Parcial - Administración de Contenedores con Ansible
+  hosts: docker
+  gather_facts: yes # Requerido para capturar datos automáticos del Sistema Operativo
+
+  tasks:
+    - name: 1. Mostrar el nombre del host
+      debug:
+        msg: "El nombre del host es: {{ inventory_hostname }}"
+
+    - name: 2. Mostrar el sistema operativo
+      debug:
+        msg: "El sistema operativo es: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+
+    - name: 3. Crear el directorio /tmp/ansible-demo
+      file:
+        path: /tmp/ansible-demo
+        state: directory
+        mode: '0755'
+
+    - name: 4 y 5. Crear info.txt y escribir el nombre del servidor y SO
+      copy:
+        content: |
+          Servidor: {{ inventory_hostname }}
+          Sistema Operativo: {{ ansible_distribution }} {{ ansible_distribution_version }}
+        dest: /tmp/ansible-demo/info.txt
+
+    - name: 6. Crear mediante un loop los directorios logs, backup y config
+      file:
+        path: "/tmp/ansible-demo/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - logs
+        - backup
+        - config
+
+    - name: 7. Mostrar un mensaje únicamente cuando el sistema operativo sea Ubuntu
+      debug:
+        msg: "Confirmado: Este servidor está ejecutando de forma nativa Ubuntu."
+      when: ansible_distribution == 'Ubuntu'
